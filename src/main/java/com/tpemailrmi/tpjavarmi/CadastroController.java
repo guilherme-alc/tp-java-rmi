@@ -3,12 +3,18 @@ package com.tpemailrmi.tpjavarmi;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tpemailrmi.tpjavarmi.comum.Usuario;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -32,7 +38,7 @@ public class CadastroController {
     @FXML
     private void cadastrarUsuario() {
         String nome = campoNome.getText();
-        String email = campoEmail.getText();
+        String email = campoEmail.getText().trim().toLowerCase();
         String senha = campoSenha.getText();
 
         if (nome.isEmpty() || email.isEmpty() || senha.isEmpty()) {
@@ -56,7 +62,15 @@ public class CadastroController {
                 // Arquivo não existe ainda, tudo bem
             }
 
-            // Adiciona novo usuário
+            boolean emailExiste = usuarios.stream()
+                    .anyMatch(u -> u.getEmail().equalsIgnoreCase(email));
+
+            if (emailExiste) {
+                labelFeedback.setText("Já existe um usuário cadastrado com esse e-mail!");
+                labelFeedback.setStyle("-fx-text-fill: red;");
+                return;
+            }
+
             usuarios.add(novoUsuario);
 
             // Escreve tudo de volta no arquivo
@@ -70,12 +84,28 @@ public class CadastroController {
             campoEmail.clear();
             campoSenha.clear();
 
-            System.out.println("Usuário cadastrado com sucesso!");
-
         } catch (Exception e) {
             e.printStackTrace();
             labelFeedback.setText("Erro ao salvar o usuário.");
             labelFeedback.setStyle("-fx-text-fill: red;");
+        }
+    }
+
+    @FXML
+    protected void abrirTelaLogin(ActionEvent event) throws IOException {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("tela-login.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Login");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+            Stage telaCadastro = (Stage) campoEmail.getScene().getWindow();
+            telaCadastro.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 }

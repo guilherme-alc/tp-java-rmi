@@ -10,4 +10,16 @@ public class Usuario {
         this.email = email;
         this.senha = senha;
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getNome(){
+        return nome;
+    }
+
+    public String getSenha(){
+        return  senha;
+    }
 }
